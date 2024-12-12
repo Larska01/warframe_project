@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rojekti</title>
+    <script src="script.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #2c2c2c;
+        }
+
+        h2 {
+            color: #ffffff;
+        }
+
+        h3 {
+            color: #ffffff;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        label {
+            color: #ffffff
+        }
+
+        li {
+            background: #4e4e4e;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: #ffffff;
+        }
+<!-- Rotta efekti
+        li:hover {
+            background: #e9ecef;
+            transition: background 0.3s;
+        } -->
+
+        .highlight {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        h4 {
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Warframe Hubi</h2>
+    <h3>Alerts</h3>
+    <ul id="alertList"></ul>
+
+    <h3>Day/Night cycles</h3>
+    <ul id="cycleList"></ul>
+
+    <h3 id="archonName"></h3>
+    <ul id="archonList"></ul>
+    <input type="checkbox" id="archonCheckbox">
+    <label for="archonCheckbox">Hunt completed?</label>
+
+    <h3 id="userSearch">Search for your top 5 warframes</h3>
+    <label for="searchField">In game name:</label>
+    <input id="searchField" value="">
+    <button onClick="fetchTop5()">Search</button>
+    <div id="top5Results"></div>
+</body>
+</html>
