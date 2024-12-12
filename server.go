@@ -188,7 +188,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("./static")))
+	http.Handle("/", http.FileServer(http.Dir("")))
 
 	http.HandleFunc("/alerts", alertsHandler)
 	http.HandleFunc("/cycles", cycleHandler)
