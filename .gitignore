@@ -1,2 +1,2 @@
 *.exe
-node_modules/
+static/node_modules/
