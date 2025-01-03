@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rojekti</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script src="index.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #2c2c2c;
+        }
+
+        h2 {
+            color: #ffffff;
+        }
+
+        h3 {
+            color: #ffffff;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        label {
+            color: #ffffff
+        }
+
+        li {
+            background: #4e4e4e;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: #ffffff;
+        }
+<!-- Rotta efekti
+        li:hover {
+            background: #e9ecef;
+            transition: background 0.3s;
+        } -->
+
+        .highlight {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        h4 {
+            color: #ffffff;
+        }
+        
+        a {
+            color: #00b7ff;
+            
+        }
+    </style>
+</head>
+
+<body>
+        <div>
+            <nav>
+                <a href="#" onclick="loadPage('index.html')">Warframe Hub</a>
+                <a href="#" onclick="loadPage('lol.html')">League</a>
+            </nav>
+        </div>
+
+        <div class="content" id="content">
+            <div>
+                <h3><img src="exclamation-triangle.svg" style="width: 25px; height: 25px" alt="No image"> Alerts</h3>
+                <ul id="alertList"></ul>
+
+                <h3>Day/Night cycles</h3>
+                <ul id="cycleList"></ul>
+
+                <h3 id="archonName"></h3>
+                <ul id="archonList"></ul>
+                <input type="checkbox" id="archonCheckbox">
+                <label for="archonCheckbox">Hunt completed?</label>
+
+                <h3 id="userSearch">Search for your top 5 warframes</h3>
+                <div class="d-flex align-items-center mb-2">
+                    <label for="searchField" class="me-1">In game name:</label>
+                    <input id="searchField" value="" class="me-2">
+                    <button onClick="fetchTop5()" class="btn btn-light btn-sm">Search</button>
+                </div>
+                <div id="top5Results"></div>
+            </div>
+        </div>
+        <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"GOlang_projekti/translator"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -10,12 +11,14 @@ import (
 	"strings"
 )
 
-// TODO: Maybe parse the data in the backend to reduce client load time? Currently 400-600ms per json.
-
 // Data types for parsing
 type ParsedTime struct {
 	State       string `json:"state"`
 	ShortString string `json:"shortString"`
+}
+
+type Cycles struct {
+	Cycle []ParsedTime
 }
 
 type ArchonMission struct {
@@ -29,21 +32,21 @@ type ParsedArchon struct {
 	Missions []ArchonMission `json:"missions"`
 }
 
-func fetchCetus() (ParsedTime, error) {
+func fetchDayNight() (ParsedTime, error) {
 	response, err := http.Get("https://api.warframestat.us/pc/cetusCycle?language=en")
 	if err != nil {
-		return ParsedTime{"", ""}, err
+		return ParsedTime{}, err
 	}
 	defer response.Body.Close()
 
 	responseData, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return ParsedTime{"", ""}, err
+		return ParsedTime{}, err
 	}
 
 	var cycle ParsedTime
 	if err := json.Unmarshal(responseData, &cycle); err != nil {
-		return ParsedTime{"", ""}, err
+		return ParsedTime{}, err
 	}
 	return cycle, nil
 }
@@ -85,7 +88,7 @@ func fetchArchon() (ParsedArchon, error) {
 }
 
 func cycleHandler(w http.ResponseWriter, r *http.Request) {
-	data, err := fetchCetus()
+	data, err := fetchDayNight()
 	if err != nil {
 		http.Error(w, "Failed to fetch data: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -117,14 +120,14 @@ func archonHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
-// TODO: Fetch user top 5 most played warframes
 // Url: https://api.warframestat.us/profile/{username}/stats/
 type WarframeStat struct {
-	UniqueName string  `json:"uniqueName"`
-	Xp         int     `json:"xp"`
-	EquipTime  float64 `json:"equiptime"`
-	Assists    int     `json:"assists"`
-	Kills      int     `json:"kills"`
+	UniqueName  string  `json:"uniqueName"`
+	Xp          int     `json:"xp"`
+	EquipTime   float64 `json:"equiptime"`
+	Assists     int     `json:"assists"`
+	Kills       int     `json:"kills"`
+	CleanedName string  `json:"cleanedName"`
 }
 
 type ApiResponse struct {
@@ -183,12 +186,17 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		top5 = filteredWarframes[:5]
 	}
 
+	// Apply name translator
+	for i := range top5 {
+		top5[i].CleanedName = translator.Translate(top5[i].UniqueName)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(top5)
 }
 
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("")))
+	http.Handle("/", http.FileServer(http.Dir("./static")))
 
 	http.HandleFunc("/alerts", alertsHandler)
 	http.HandleFunc("/cycles", cycleHandler)
