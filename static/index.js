@@ -187,6 +187,38 @@ async function fetchTop5(){
         data.forEach(warframe => {
             const li = document.createElement('li');
             li.textContent = `${listIndex}. ${warframe.cleanedName} - xp: ${warframe.xp}`;
+        
+            const details = document.createElement('details');
+            const summary = document.createElement('summary');
+            summary.textContent = 'Abilities';
+        
+            const passive = document.createElement('p');
+            const passiveBold = document.createElement('strong');
+            passiveBold.textContent = 'Passive: '
+            const passiveName = document.createTextNode(warframe.passiveDescription);
+
+            passive.appendChild(passiveBold);
+            passive.appendChild(passiveName);
+
+        
+            details.appendChild(summary);
+            details.appendChild(passive);
+        
+            warframe.abilities.forEach(ability => {
+                const p = document.createElement('p');
+
+                const abilityName = document.createElement('strong');
+                abilityName.textContent = ability.abilityName + ': ';
+
+                const abilityDescription = document.createTextNode(ability.description);
+
+                p.appendChild(abilityName);
+                p.appendChild(abilityDescription);
+
+                details.appendChild(p);
+            });
+        
+            li.appendChild(details);
             ul.appendChild(li);
             listIndex++;
         });

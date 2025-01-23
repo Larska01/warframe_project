@@ -1,8 +1,5 @@
 package translator
 
-// This file is used to translate the warframes to their proper names using the warframe public export json files
-// TODO: For the top 5 warframes feature maybe more information on them can be viewed using the public export
-
 import (
 	"encoding/json"
 	"io/ioutil"
@@ -10,16 +7,31 @@ import (
 )
 
 // Structs to match the export file
+type WarframeAbility struct {
+	AbilityName string `json:"abilityName"`
+	Description string `json:"description"`
+}
+
 type Warframe struct {
-	UniqueName string `json:"uniqueName"`
-	Name       string `json:"name"`
+	UniqueName string            `json:"uniqueName"`
+	Name       string            `json:"name"`
+	Abilities  []WarframeAbility `json:"abilities"`
+	Passive    string            `json:"passiveDescription"`
 }
 
 type WarframeData struct {
 	ExportWarframes []Warframe `json:"ExportWarframes"`
 }
 
-func loadWarframeNames(filePath string) (map[string]string, error) {
+// Struct to hold the result from the Translate function
+type WarframeInfo struct {
+	Name       string            `json:"name"`
+	UniqueName string            `json:"uniqueName"`
+	Abilities  []WarframeAbility `json:"abilities"`
+	Passive    string            `json:"passiveDescription"`
+}
+
+func loadWarframeData(filePath string) (map[string]Warframe, error) {
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, err
@@ -31,29 +43,29 @@ func loadWarframeNames(filePath string) (map[string]string, error) {
 		return nil, err
 	}
 
-	warframeNames := make(map[string]string)
+	warframeMap := make(map[string]Warframe)
 	for _, wf := range warframeData.ExportWarframes {
-		warframeNames[wf.UniqueName] = wf.Name
+		warframeMap[wf.UniqueName] = wf
 	}
 
-	return warframeNames, nil
+	return warframeMap, nil
 }
 
-func getWarframeName(uniqueName string, warframeNames map[string]string) string {
-	if name, exists := warframeNames[uniqueName]; exists {
-		return name
+func getWarframeInfo(uniqueName string, warframeMap map[string]Warframe) WarframeInfo {
+	if wf, exists := warframeMap[uniqueName]; exists {
+		return WarframeInfo{Name: wf.Name, Abilities: wf.Abilities, Passive: wf.Passive}
 	}
-	return "Unknown Warframe"
+	return WarframeInfo{Name: "Unknown Warframe", Abilities: nil}
 }
 
-func Translate(rawName string) string {
-	var cleanName string
-	warframeNames, err := loadWarframeNames("static/WarframeExported/ExportWarframes_en.json")
+// Translates the database name to correct name and searches for warframe ability information
+func TranslateAndAddAbilityInfo(rawName string) WarframeInfo {
+	warframeMap, err := loadWarframeData("static/WarframeExported/ExportWarframes_en.json")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	cleanName = getWarframeName(rawName, warframeNames)
+	warframeInfo := getWarframeInfo(rawName, warframeMap)
 
-	return cleanName
+	return warframeInfo
 }

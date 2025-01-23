@@ -121,17 +121,22 @@ func archonHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Url: https://api.warframestat.us/profile/{username}/stats/
-type WarframeStat struct {
-	UniqueName  string  `json:"uniqueName"`
-	Xp          int     `json:"xp"`
-	EquipTime   float64 `json:"equiptime"`
-	Assists     int     `json:"assists"`
-	Kills       int     `json:"kills"`
-	CleanedName string  `json:"cleanedName"`
+type WarframeAbility struct {
+	AbilityName string `json:"abilityName"`
+	Description string `json:"description"`
+}
+
+type WarframeData struct {
+	UniqueName  string            `json:"uniqueName"`
+	CleanedName string            `json:"cleanedName"`
+	EquipTime   float64           `json:"equiptime"`
+	Xp          int               `json:"xp"`
+	Abilities   []WarframeAbility `json:"abilities"`
+	Passive     string            `json:"passiveDescription"`
 }
 
 type ApiResponse struct {
-	Weapons []WarframeStat `json:"weapons"`
+	Weapons []WarframeData `json:"weapons"`
 }
 
 func searchHandler(w http.ResponseWriter, r *http.Request) {
@@ -170,7 +175,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var filteredWarframes []WarframeStat
+	var filteredWarframes []WarframeData
 	for _, item := range apiResponse.Weapons {
 		if strings.HasPrefix(item.UniqueName, "/Lotus/Powersuits/") && !strings.Contains(item.UniqueName, "/Operator/") {
 			filteredWarframes = append(filteredWarframes, item)
@@ -186,9 +191,26 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 		top5 = filteredWarframes[:5]
 	}
 
-	// Apply name translator
+	// Apply name translator and append ability info
 	for i := range top5 {
-		top5[i].CleanedName = translator.Translate(top5[i].UniqueName)
+		warframeInfo := translator.TranslateAndAddAbilityInfo(top5[i].UniqueName)
+
+		abilities := make([]WarframeAbility, len(warframeInfo.Abilities))
+		for j, ability := range warframeInfo.Abilities {
+			abilities[j] = WarframeAbility{
+				AbilityName: ability.AbilityName,
+				Description: ability.Description,
+			}
+		}
+
+		top5[i] = WarframeData{
+			UniqueName:  top5[i].UniqueName,
+			CleanedName: warframeInfo.Name,
+			EquipTime:   top5[i].EquipTime,
+			Xp:          top5[i].Xp,
+			Abilities:   abilities,
+			Passive:     warframeInfo.Passive,
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
