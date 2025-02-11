@@ -2,6 +2,74 @@ const alertURL = "http://localhost:8080/alerts";
 const cycleURL = "http://localhost:8080/cycles"
 const archonURL = "http://localhost:8080/archon"
 const top5warframe = `http://localhost:8080/search`;
+const newsURL = `http://localhost:8080/news`;
+newsImageArray = [ ]
+
+
+// TODO: Sort news in order of newest -> oldest
+async function fetchAndDisplayNews() {
+    try {
+        const response = await fetch(newsURL);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const news = await response.json();
+
+        const newsList = document.getElementById("newsList");
+
+        newsList.innerHTML = "";
+
+        news.news.forEach(ev => {
+            const rawTimeString = ev.asString
+            const timeString = extractDaysAndHours(rawTimeString);
+            const message = ev.message
+            const link = ev.link
+            const imageLink = ev.imageLink
+
+            const listItem = document.createElement("li");
+            listItem.classList.add("compact-li");
+            const anchor = document.createElement("a");
+            const timeAnchor = document.createElement("a");
+            timeAnchor.textContent = timeString + ":  ";
+            timeAnchor.style.cssText = 'font-size: 12px;'
+
+            anchor.href = link;
+            anchor.textContent = message;
+            anchor.target = "_blank";
+
+            listItem.appendChild(timeAnchor);
+            listItem.appendChild(anchor);
+
+            newsList.append(listItem);
+
+            newsImageArray.push({key: message, value: imageLink});
+        });
+    }
+    catch (error){
+        console.error("Failed to fetch news:", error);
+    }
+}
+
+// Rotates the news image every 5 seconds
+async function rotateNewsImage(newsImageArray) {
+    const newsImage = document.getElementById("newsImage");
+    // Load the first image NOTE: Not working
+    newsImage.innerHTML = `<img class="news" src="${newsImageArray[0]}">`;
+
+        let index = 0;
+        setInterval(() => {
+            const imageLink = newsImageArray[index].value;
+            const keyText = newsImageArray[index].key;
+            newsImage.innerHTML = `<img class="news" src="${imageLink}">`;
+            const linkElement = [...document.querySelectorAll('a')].find(a => a.textContent === keyText);
+
+            document.querySelectorAll('a').forEach(a => a.style.color = '');
+
+            if (linkElement) {
+                linkElement.style.color = 'white';
+            }
+            index = (index + 1) % newsImageArray.length;
+        }, 5000);
+     
+}
 
 async function fetchAndDisplayAlerts() {
     try {
@@ -67,34 +135,23 @@ async function archonHunt() {
 
         const archonList = document.getElementById("archonList");
         const archonName = document.getElementById("archonName");
-        
+
+        archonList.innerHTML = "";
 
         const boss = archonHunt.boss || "Not found";
         const time = archonHunt.eta || "Not found";
         const timeWithoutSeconds = time.replace(/\s?\d+s$/, '');
-        const mission1 = archonHunt.missions[0].nodeKey || "Not found";
-        const missionType1 = archonHunt.missions[0].typeKey || "Not found";
-        const mission2 = archonHunt.missions[1].nodeKey || "Not found";
-        const missionType2 = archonHunt.missions[1].typeKey || "Not found";
-        const mission3 = archonHunt.missions[2].nodeKey || "Not found";
-        const missionType3 = archonHunt.missions[2].typeKey || "Not found";
 
         archonName.innerHTML = `<img src="IconNarmer.webp" style="width: 25px; height: 25px"> ${boss}, ${timeWithoutSeconds}`;
 
-        const m1List = document.createElement("li");
-        m1List.textContent = `${mission1}, ${missionType1}`;
-        archonList.append(m1List);
+        archonHunt.missions.forEach(mission => {
+            const missionItem = document.createElement("li");
+            missionItem.textContent = `${mission.nodeKey || "Not found"}, ${mission.typeKey || "Not found"}`;
+            archonList.appendChild(missionItem);
+        });
 
-        const m2List = document.createElement("li");
-        m2List.textContent = `${mission2}, ${missionType2}`;
-        archonList.append(m2List);
-
-        const m3List = document.createElement("li");
-        m3List.textContent = `${mission3}, ${missionType3}`;
-        archonList.append(m3List);
-
-    } catch (error){
-
+    } catch (error) {
+        console.error("Error fetching Archon Hunt data:", error);
     }
 }
 
@@ -238,6 +295,8 @@ window.onload = function() {
     fetchAndDisplayAlerts();
     dayNightCycles();
     archonHunt();
+    fetchAndDisplayNews();
+    rotateNewsImage(newsImageArray);
 };
 
 function loadPage(page) {
@@ -263,4 +322,19 @@ function loadPage(page) {
             document.getElementById('content').innerHTML = '<h1>Page not found!</h1>';
             console.error('Error loading page:', error);
         });
+}
+
+// Update data every minute
+setInterval(() => {
+    fetchAndDisplayAlerts();
+    dayNightCycles();
+    archonHunt();
+}, 60000);
+
+function extractDaysAndHours(str) {
+    const regex = /\[(.*?)\]/;
+
+    const match = str.match(regex);
+
+    return match ? match[1] : null;
 }

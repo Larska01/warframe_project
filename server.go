@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 )
 
 // Data types for parsing
@@ -156,7 +157,11 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	apiURL := fmt.Sprintf("https://api.warframestat.us/profile/%s/stats/", requestBody.Query)
-	resp, err := http.Get(apiURL)
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	resp, err := client.Get(apiURL)
 	if err != nil {
 		http.Error(w, "Failed to fetch data from API", http.StatusInternalServerError)
 		return
@@ -217,6 +222,48 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(top5)
 }
 
+// TODO: Add news page. URL: https://api.warframestat.us/pc/
+type Event struct {
+	Date       string `json:"date"`
+	Message    string `json:"message"`
+	Link       string `json:"link"`
+	ImageLink  string `json:"imageLink"`
+	Timestring string `json:"asString"`
+}
+
+type News struct {
+	News []Event `json:"news"`
+}
+
+func fetchNews() (News, error) {
+	response, err := http.Get("https://api.warframestat.us/pc/?language=en")
+	if err != nil {
+		return News{}, err
+	}
+	defer response.Body.Close()
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return News{}, err
+	}
+	var news News
+	if err := json.Unmarshal(responseData, &news); err != nil {
+		return News{}, err
+	}
+	return news, nil
+}
+
+func newsHandler(w http.ResponseWriter, r *http.Request) {
+	data, err := fetchNews()
+	if err != nil {
+		http.Error(w, "Failed to fetch data: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
+}
+
 func main() {
 	http.Handle("/", http.FileServer(http.Dir("./static")))
 
@@ -224,6 +271,7 @@ func main() {
 	http.HandleFunc("/cycles", cycleHandler)
 	http.HandleFunc("/archon", archonHandler)
 	http.HandleFunc("/search", searchHandler)
+	http.HandleFunc("/news", newsHandler)
 
 	log.Println("Server is running on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
