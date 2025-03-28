@@ -1,4 +1,4 @@
-# Website using the warframe API: https://docs.warframestat.us/
+# Website using the warframe API that shows worldstate, alert and news info: https://docs.warframestat.us/
 ## TODO:
 * Refactor javascript (will become a huge mess if features are added)
 * Implement a cache for worldstate data (to remove public api bottleneck)
