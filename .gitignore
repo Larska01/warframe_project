@@ -1,2 +1,3 @@
 *.exe
 static/node_modules/
+data

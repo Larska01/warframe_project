@@ -49,7 +49,7 @@ async function fetchAndDisplayNews() {
 }
 
 // Rotates the news image every 5 seconds
-async function rotateNewsImage(newsImageArray) {
+function rotateNewsImage(newsImageArray) {
     const newsImage = document.getElementById("newsImage");
     // Load the first image NOTE: Not working
     newsImage.innerHTML = `<img class="news" src="${newsImageArray[0]}">`;
@@ -292,11 +292,7 @@ setResetTimer();
 
 
 window.onload = function() {
-    fetchAndDisplayAlerts();
-    dayNightCycles();
-    archonHunt();
-    fetchAndDisplayNews();
-    rotateNewsImage(newsImageArray);
+    loadPageData();
 };
 
 function loadPage(page) {
@@ -312,10 +308,7 @@ function loadPage(page) {
             }
 
             if (page === 'index.html') {
-                fetchAndDisplayAlerts();
-                dayNightCycles();
-                archonHunt();
-                restoreCheckBox();
+                loadPageData();
             }
         })
         .catch(error => {
@@ -330,6 +323,14 @@ setInterval(() => {
     dayNightCycles();
     archonHunt();
 }, 60000);
+
+function loadPageData(){
+    fetchAndDisplayAlerts();
+    dayNightCycles();
+    archonHunt();
+    fetchAndDisplayNews();
+    rotateNewsImage(newsImageArray);
+}
 
 function extractDaysAndHours(str) {
     const regex = /\[(.*?)\]/;

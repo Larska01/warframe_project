@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"sort"
 	"strings"
 	"time"
@@ -34,32 +35,33 @@ type ParsedArchon struct {
 }
 
 func fetchDayNight() (ParsedTime, error) {
-	response, err := http.Get("https://api.warframestat.us/pc/cetusCycle?language=en")
+	file, err := os.Open("data/cetus_cycle.json")
 	if err != nil {
 		return ParsedTime{}, err
 	}
-	defer response.Body.Close()
+	defer file.Close()
 
-	responseData, err := ioutil.ReadAll(response.Body)
+	responseData, err := ioutil.ReadAll(file)
 	if err != nil {
 		return ParsedTime{}, err
 	}
 
-	var cycle ParsedTime
-	if err := json.Unmarshal(responseData, &cycle); err != nil {
+	var cetusTime ParsedTime
+	if err := json.Unmarshal(responseData, &cetusTime); err != nil {
 		return ParsedTime{}, err
 	}
-	return cycle, nil
+
+	return cetusTime, nil
 }
 
 func fetchAlerts() ([]map[string]interface{}, error) {
-	response, err := http.Get("https://api.warframestat.us/pc/alerts?language=en")
+	file, err := os.Open("data/alerts.json")
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
+	defer file.Close()
 
-	responseData, err := ioutil.ReadAll(response.Body)
+	responseData, err := ioutil.ReadAll(file)
 	if err != nil {
 		return nil, err
 	}
@@ -71,20 +73,22 @@ func fetchAlerts() ([]map[string]interface{}, error) {
 }
 
 func fetchArchon() (ParsedArchon, error) {
-	response, err := http.Get("https://api.warframestat.us/pc/archonHunt?language=en")
+	file, err := os.Open("data/archon_hunt.json")
 	if err != nil {
 		return ParsedArchon{}, err
 	}
-	defer response.Body.Close()
+	defer file.Close()
 
-	responseData, err := ioutil.ReadAll(response.Body)
+	responseData, err := ioutil.ReadAll(file)
 	if err != nil {
 		return ParsedArchon{}, err
 	}
+
 	var archonHunt ParsedArchon
 	if err := json.Unmarshal(responseData, &archonHunt); err != nil {
 		return ParsedArchon{}, err
 	}
+
 	return archonHunt, nil
 }
 
@@ -236,20 +240,22 @@ type News struct {
 }
 
 func fetchNews() (News, error) {
-	response, err := http.Get("https://api.warframestat.us/pc/?language=en")
+	file, err := os.Open("data/news.json")
 	if err != nil {
 		return News{}, err
 	}
-	defer response.Body.Close()
+	defer file.Close()
 
-	responseData, err := ioutil.ReadAll(response.Body)
+	responseData, err := ioutil.ReadAll(file)
 	if err != nil {
 		return News{}, err
 	}
+
 	var news News
 	if err := json.Unmarshal(responseData, &news); err != nil {
 		return News{}, err
 	}
+
 	return news, nil
 }
 
