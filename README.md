@@ -1,6 +1,6 @@
 # Website using the warframe API that shows worldstate, alert and news info: https://docs.warframestat.us/
 ## How to run
-* Clone and run server.go and data/scheduling.py
+* Clone and run server.go and api_cache/scheduling.py
 
 ## TODO:
 * Refactor javascript (will become a huge mess if features are added)
