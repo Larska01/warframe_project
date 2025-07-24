@@ -1,4 +1,4 @@
-# Website using the warframe API that shows worldstate, alert and news info: https://docs.warframestat.us/
+# Website using the warframe API that shows worldstate, alert and news info. API documentation: https://docs.warframestat.us/
 ## How to run
 * Clone and run **server.go** and **api_cache/scheduling.py**
 
