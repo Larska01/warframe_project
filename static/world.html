@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="worldstate.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worldstate</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="content" id="content">
+    <div class="news-alert-container">
+        <div>
+        <h3>News</h3>
+        <div id="newsImage"></div>
+        <ul id="newsList" class="compact-ul mt-2"></ul>
+    </div>
+
+        <div>
+            <h3><img src="exclamation-triangle.svg" style="width: 25px; height: 25px" alt="No image"> Alerts</h3>
+            <ul id="alertList"></ul>
+
+            <h3 id="archonName"></h3>
+            <ul id="archonList"></ul>
+            <input type="checkbox" id="archonCheckbox">
+            <label for="archonCheckbox">Hunt completed?</label>
+            
+            <h3>Day/Night cycles</h3>
+            <ul id="cycleList"></ul>
+        </div>
+    </div>
+
+        <h3 id="userSearch">Search for your top 5 warframes</h3>
+            <div class="d-flex align-items-center mb-2">
+                <label for="searchField" class="me-1">In game name:</label>
+                <input id="searchField" value="" class="me-2">
+                <button onClick="fetchTop5()" class="btn btn-light btn-sm">Search</button>
+            </div>
+        <div id="top5Results"></div>
+</div>
+<script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
